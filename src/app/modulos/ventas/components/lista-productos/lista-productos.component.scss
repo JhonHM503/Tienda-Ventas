@@ -1,0 +1,50 @@
+/* Estilos adicionales para mejorar la apariencia */
+.form-select {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  background-color: #fff;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-select:focus {
+  border-color: #101011;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-select:disabled {
+  background-color: #f8f9fa;
+  opacity: 0.65;
+}
+
+.form-label {
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.product-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+}
+
+.badge {
+  font-size: 0.75em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .col-md-3 {
+    margin-bottom: 2rem;
+  }
+  
+  .form-select {
+    font-size: 14px;
+  }
+}

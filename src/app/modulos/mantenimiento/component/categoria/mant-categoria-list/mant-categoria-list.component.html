@@ -1,0 +1,62 @@
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center" >
+            <h1 class="mt-4">MANTENIMIENTO DE CATEGORIAS</h1>
+        </div>
+        <div class="card-body">
+
+            
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NOMBRE</th>
+                        <th>
+                            <button (click)="crearCargo(modalEdit)" class="btn btn-dark btn-sm">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let categoria of categorias">
+                        <td>{{categoria.idCategoria}}</td>
+                        <td>{{categoria.nombre}}</td>
+                        <td>
+                            <button (click)="editarCargo(modalEdit,categoria)" class="btn btn-info btn-sm me-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button (click)="eliminarRegistro(categoria.idCategoria)" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash" ></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-xs-8 col-8">
+                    <!-- <pagination [totalItems]="5" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination> -->
+                    <pagination  (pageChanged)="changePage($event)" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" [previousText]="'Anterior'" [nextText]="'Siguiente'">
+                    </pagination>
+                </div>
+                <div class="col-xs-4 col-4">
+                    <select (change)="changeItemsPerPage()" [(ngModel)]="itemsPerPage" class="form-select">
+                        <option value="1">1</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #modalEdit>
+  <app-mant-categoria-register
+  [title]="titleModal"
+  [categoria]="categoriaSelected"
+  [accion]="accionModal"
+  (closeModalEmmit)="getCloseModalEmmit($event)"
+  ></app-mant-categoria-register>
+</ng-template>

@@ -1,0 +1,17 @@
+ .bg-yn {
+            background-color: #3498db;
+        }
+        .btn-yn {
+            background-color: #2980b9;
+            color: white;
+        }
+        .product-card {
+            transition: transform 0.3s;
+        }
+        .product-card:hover {
+            transform: scale(1.05);
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }

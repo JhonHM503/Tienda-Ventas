@@ -1,0 +1,95 @@
+<div  class="container-fluid px-4 mt-5">
+  <h2>Registro de Venta</h2>
+
+   <form [formGroup]="clienteForm" class="cliente-form">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="input-group mb-3">
+          <input formControlName="numeroDocumento" placeholder="DNI" class="form-control">
+          <button type="button" (click)="buscarCliente()" class="btn btn-primary" [disabled]="buscando">
+            <span *ngIf="!buscando">Buscar</span>
+            <span *ngIf="buscando" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-3">
+        <input formControlName="nombre" placeholder="Nombre"  class="form-control mb-2">
+      </div>
+      <div class="col-md-3">
+        <input formControlName="apellidoPaterno" placeholder="Apellido Paterno"  class="form-control mb-2">
+      </div>
+      <div class="col-md-3">
+        <input formControlName="apellidoMaterno" placeholder="Apellido Materno"  class="form-control mb-2">
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-2">
+      <label for="idMetodoPago" class="form-label">Método de Pago</label>
+      <select formControlName="idMetodoPago" id="idMetodoPago" class="form-select">
+        <option value="">Seleccione un método de pago</option>
+        <option *ngFor="let metodo of metodosPago" [value]="metodo.idMetodoPago">
+          {{metodo.nombre}}
+        </option>
+      </select>
+    </div>
+  </form>
+
+
+  <div class="venta-container">
+    <div class="busqueda-productos">
+      <input [(ngModel)]="terminoBusqueda" (input)="buscarProductos()" placeholder="Buscar producto">
+      <ul class="lista-productos" *ngIf="mostrarSugerencias">
+        <li *ngFor="let producto of productosFiltrados" (click)="agregarAlCarrito(producto)">
+          {{ producto.nombre }} - {{ producto.precio | currency: 'PEN':'S/. ' }} - Stock-{{producto.stock}}
+        </li>
+      </ul>
+    </div>
+  
+    <div class="carrito">
+      <h3>Detalle de Compras</h3>
+      <table  class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of itemsCarrito; let i = index">
+            <td>{{ item.nombre }}</td>
+            <td>
+              <input 
+              type="number" 
+              [(ngModel)]="item.cantidad" 
+              (change)="actualizarSubtotal(item)"
+              min="1"
+              max="20"
+              class="form-control"
+              style="width: 80px;">                  </td>
+            <td>{{ item.precio | currency: 'PEN':'S/. ' }}</td>
+            <td>{{ item.subtotal | currency: 'PEN':'S/. ' }}</td>
+            <td>
+              <button (click)="eliminarDelCarrito(i)" class="btn btn-danger btn-sm">
+                <i class="fas fa-trash"></i> Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+
+  <div class="total">
+    <p>Total: {{ total | currency: 'PEN':'S/. ' }}</p>
+  </div>
+
+  <button [disabled]="!clienteForm.valid || itemsCarrito.length===0" (click)="registrarVenta()" class="btn-registrar">
+    Registrar Venta
+  </button>
+</div>
+

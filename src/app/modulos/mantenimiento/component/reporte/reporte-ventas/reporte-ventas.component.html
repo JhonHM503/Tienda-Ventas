@@ -1,0 +1,162 @@
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center">
+            <h1 class="mt-4">REPORTE DE VENTAS</h1>
+        </div>
+        <div class="card-body">
+            
+            <!-- filtros -->
+            <form [formGroup]="filterForm" (ngSubmit)="aplicarFiltros()">
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <label for="fechaInicio">Fecha Inicio:</label>
+                        <input type="date" formControlName="fechaInicio" class="form-control" placeholder="Fecha Inicio">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="fechaFin">Fecha Fin:</label>
+                        <input type="date" formControlName="fechaFin" class="form-control" placeholder="Fecha Fin">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="metodoPago">Método de Pago:</label>
+                        <select class="form-select" formControlName="metodoPago" >
+                            <option value="">Todos</option>
+                            <option *ngFor="let metodo of metodoPagos" [value]="metodo.idMetodoPago">
+                                {{metodo.nombre}}
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="clienteNombre">Cliente:</label>
+                        <input type="text" formControlName="nombreComprador" class="form-control" placeholder="Nombre Cliente">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="totalMinimo">Total Mínimo:</label>
+                            <div class="input-group">
+                                <input type="number" 
+                                    class="form-control" 
+                                    formControlName="totalMinimo" 
+                                    placeholder="Precio total mín S/."
+                                    min="0"
+                                    step="0.01">
+                            </div>
+                        <!-- <input type="number" formControlName="totalMinimo" class="form-control" placeholder="Total Mínimo"> -->
+                    </div>
+                    <div class="col-md-2">
+                        <label for="totalMaximo">Total Máximo:</label>
+                        <!-- <input type="number" formControlName="totalMaximo" class="form-control" placeholder="Total Máximo"> -->
+                         <div class="input-group">
+                            <input type="number" 
+                                   class="form-control" 
+                                   formControlName="totalMaximo" 
+                                   placeholder="Precio total máx S/."
+                                   [min]="filterForm.get('totalMinimo')?.value || 0"
+                                   step="0.01"
+                                   (input)="validarTotalMax($event)">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12 text-end">
+                        <button type="submit" class="btn btn-primary me-2">Aplicar Filtros</button>
+                        <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar Filtros</button>
+                    </div>
+                </div>
+            </form>
+            <!-- fin filtro -->
+            <div class="row mb-3">
+                <div class="col-md-12 text-end">
+                    <button type="button" class="btn btn-success me-2" (click)="exportarExcel()">
+                        <i class="fas fa-file-excel"></i> Exportar a Excel
+                    </button>
+                    <button type="button" class="btn btn-danger" (click)="exportarPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar a PDF
+                    </button>
+                </div>
+            </div>
+
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>IDVenta</th>
+                        <th>Cliente</th>
+                        <th>Metodo de Pago</th>
+                        <th>Total</th>
+                        <th>Fecha venta</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let venta of ventasPaginadas">
+                        <td>{{venta.idVenta}}</td>
+                        <td>{{getNombreComprador(venta)}}</td>
+                        <td>{{getNombreMetodoPago(venta.idMetodoPago)}}</td>
+                        <td>{{venta.total | currency: 'PEN':'S/. ' }}</td>
+                        <td>{{venta.fechaVenta | date:"dd/MM/yyyy"}}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm me-2" (click)="verDetalleVenta(venta.idVenta)">
+                                <i class="fas fa-eye"></i> Ver detalle
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Agregar después de la tabla -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    <p class="mb-0">Total de registros: {{ totalItems }}</p>
+                </div>
+                <div>
+                    <pagination 
+                        [totalItems]="totalItems"
+                        [itemsPerPage]="itemsPerPage"
+                        [(ngModel)]="currentPage"
+                        (pageChanged)="pageChanged($event)"
+                        [maxSize]="5"
+                        [boundaryLinks]="true"
+                        [rotate]="true"
+                        previousText="&lsaquo;"
+                        nextText="&rsaquo;"
+                        firstText="&laquo;"
+                        lastText="&raquo;">
+                    </pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Modal para mostrar detalles de venta -->
+      <div class="modal" [ngClass]="{'d-block': ventaSeleccionada !== null, 'd-none': ventaSeleccionada === null}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la Venta N° {{ventaSeleccionada}}</h5>
+                    <button type="button" class="btn-close" (click)="cerrarDetalleVenta()"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let detalle of detallesVenta">
+                                <td>{{getNombreProducto(detalle.idProducto)}}</td>
+                                <td>{{detalle.cantidad}}</td>
+                                <td>{{detalle.precioUnitario | currency: 'PEN':'S/. ' }}</td>
+                                <td>{{detalle.subtotal | currency: 'PEN':'S/. ' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="cerrarDetalleVenta()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

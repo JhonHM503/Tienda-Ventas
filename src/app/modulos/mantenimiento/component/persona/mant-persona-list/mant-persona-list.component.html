@@ -1,0 +1,67 @@
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center" >
+            <h1 class="mt-4">REGISTRO</h1>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NOMBRE</th>
+                        <th>AP.Paterno</th>
+                        <th>AP.Materno</th>
+                        <th>Tipo Documento</th>
+                        <th>N° DE DOCUMENTO</th>
+                        <th>
+                            <button (click)="crearPersona(modalEdit)" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let persona of vPersonas">
+                        <td>{{persona.idPersona}}</td>
+                        <td>{{persona.nombre}}</td>
+                        <td>{{persona.apellidoPaterno}}</td>
+                        <td>{{persona.apellidoMaterno}}</td>
+                        <td>{{persona.idTipoDocumento}}</td>
+                        <td>{{persona.numeroDocumento}}</td>
+                        <td>
+                            <button (click)="editarPersona(modalEdit,persona)" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button (click)="eliminarRegistro(persona.idPersona)" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <pagination (pageChanged)="changePage($event)" [totalItems]="totalItems"
+                        [itemsPerPage]="itemsPerPage" [previousText]="'Anterior'" [nextText]="'Siguiente'">
+                </pagination>
+
+                <div class="col-xs-4 col-4">
+                    <select (change)="changeItemsPerPage()" [(ngModel)]="itemsPerPage" class="form-select">
+                        <option value="1">1</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #modalEdit>
+  <app-mant-persona-register
+  [title]="titleModal"
+  [persona]="personaSelected"
+  [accion]="accionModal"
+  (closeModalEmmit)="getCloseModalEmmit($event)"
+  ></app-mant-persona-register>
+</ng-template>

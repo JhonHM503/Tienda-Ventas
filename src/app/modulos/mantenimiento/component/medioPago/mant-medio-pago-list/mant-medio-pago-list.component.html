@@ -1,0 +1,46 @@
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center" >
+            <h1 class="mt-4">MANTENIMIENTO DE METODO DE PAGOS</h1>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NOMBRE</th>
+                        <th>
+                            <button (click)="crearMetodoPago(modalEdit)" class="btn btn-dark btn-sm">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let metodoPago of metodoPagos">
+                        <td>{{metodoPago.idMetodoPago}}</td>
+                        <td>{{metodoPago.nombre}}</td>
+                        <td>
+                            <button (click)="editarMetodoPago(modalEdit,metodoPago)" class="btn btn-info btn-sm me-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button (click)="eliminarRegistro(metodoPago.idMetodoPago)" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #modalEdit>
+  <app-mant-medio-pago-register
+  [title]="titleModal"
+  [metodoPago]="metodoPagoSelected"
+  [accion]="accionModal"
+  (closeModalEmmit)="getCloseModalEmmit($event)"
+  ></app-mant-medio-pago-register>
+</ng-template>

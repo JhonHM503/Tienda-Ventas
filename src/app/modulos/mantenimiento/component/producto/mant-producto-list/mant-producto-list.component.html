@@ -1,0 +1,148 @@
+
+
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center text-white bg-dark" >
+            <h1 class="mt-4">MANTENIMIENTO DE PRODUCTOS</h1>
+        </div>
+        <div class="card-body">
+            
+            <!-- Sección de filtros -->
+            <form [formGroup]="filterForm" (ngSubmit)="aplicaFiltros()" class="mb-4">
+                <div class="row g-3">
+                <div class="col-md-2">
+                    <input type="text" class="form-control" formControlName="nombre" placeholder="Nombre producto">
+                </div>
+                <div class="col-md-2">
+                    <input type="text" class="form-control" formControlName="descripcion" placeholder="Descripcion">
+                </div>
+                <div class="col-md-2">
+                    <!-- <input type="text" class="form-control" formControlName="precio" placeholder="precio S/."> -->
+                    <div class="input-group">
+                        <input type="number" 
+                               class="form-control" 
+                               formControlName="precioMin" 
+                               placeholder="Precio mín S/."
+                               min="0"
+                               step="0.01">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                        <div class="input-group">
+                            <input type="number" 
+                                   class="form-control" 
+                                   formControlName="precioMax" 
+                                   placeholder="Precio máx S/."
+                                   [min]="filterForm.get('precioMin')?.value || 0"
+                                   step="0.01"
+                                   (input)="validarPrecioMax($event)">
+                        </div>
+                    </div>
+                <div class="col-md-2">
+                    <select class="form-select" formControlName="categoria">
+                    <option value="">Todos las categorias</option>
+                    <option *ngFor="let categoria of categorias" [value]="categoria.idCategoria">{{categoria.nombre}}</option>
+                    </select>
+                </div>
+            
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+                    <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar</button>
+                </div>
+                </div>
+            </form>
+
+
+
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Categoría </th>
+                        <th>Precio</th>
+                        <th>Stock(ud)</th>
+                        <th>Marca Accesorio</th>
+                        <th>Material</th>
+                        <th>Color</th>
+                        <!-- <th>Tipo Funda</th> -->
+                        <th>Tipo</th>
+                        <th>Compatibilidad</th>
+                        <th>Imagen</th>
+                        <th>
+                            <button (click)="crearProducto(modalEdit)"  class="btn btn-dark btn-sm">
+                                 <i class="fas fa-plus me-2"></i>Agregar Producto
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of productosConImagenesPaginados">
+                        <td>{{ p.producto.idProducto}}</td>
+                        <td>{{ p.producto.nombre }}</td>
+                        <td>{{ p.producto.descripcion }}</td>
+                        <td>{{getCategoriaName(p.producto.idCategoria)}}</td>
+                        <td>{{p.producto.precio| currency:'PEN':'S/. '}}</td>
+                        <td>{{p.producto.stock}} ud.</td>
+                        <td>{{p.producto.marcaAccesorio}}</td>
+                        <td>{{p.producto.material}}</td>
+                        <td>{{p.producto.color}}</td>
+                        <td>{{getTipoProductorName(p.producto.idTipoProducto)}}</td>
+                        <!-- <td>{{getTipoProtectorName(p.producto.idTipoProtector)}}</td> -->
+                        <td>
+                            <span *ngIf="p.producto.esUniversal" class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i>Universal
+                            </span>
+                            <span *ngIf="!p.producto.esUniversal" class="badge bg-warning text-dark">
+                                <i class="fas fa-mobile-alt me-1"></i>Específico
+                            </span>
+                        </td>
+                        <td><img [src]="p.imagen.url" alt="Imagen del producto" style="width: 50px; height: 50px;"></td>
+                        <td>
+                            <button (click)="editarProducto(modalEdit,p.producto,p.imagen)" class="btn btn-info btn-sm me-2">
+                                <i class="fas fa-edit me-2"></i>Editar
+                            </button>
+                            <button (click)="eliminarProducto(p.producto.idProducto)" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash me-2"></i>Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Paginación -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                    <p class="mb-0">Total de registros: {{ totalItems }}</p>
+                </div>
+                <div>
+                    <pagination 
+                        [totalItems]="totalItems"
+                        [itemsPerPage]="itemsPerPage"
+                        [(ngModel)]="currentPage"
+                        (pageChanged)="pageChanged($event)"
+                        [maxSize]="5"
+                        [boundaryLinks]="true"
+                        [rotate]="true"
+                        previousText="&lsaquo;"
+                        nextText="&rsaquo;"
+                        firstText="&laquo;"
+                        lastText="&raquo;">
+                    </pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalEdit>
+    <app-mant-producto-register
+        [title]="titleModal"
+        [accion]="accionModal"
+        [producto]="productoSelected"
+        [imagen]="imagenSelected"
+        [categorias]="categorias"
+        (closeModalEmmit)="getCloseModalEmmit($event)"        
+    >
+    </app-mant-producto-register>
+</ng-template>

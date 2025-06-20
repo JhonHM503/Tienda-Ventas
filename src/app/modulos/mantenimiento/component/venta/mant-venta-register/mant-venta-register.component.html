@@ -1,0 +1,64 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{title}}</h4>
+    <!-- (click)="modalRef?.hide()" -->
+    <button type="button" class="btn-close close pull-right" aria-label="Close"  >
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="myForm">
+        <div class="row">
+            <div class="col-12 mt-3">
+                <div class="form-group">
+                    <label for="">IDVetna</label>
+                    <input formControlName="idVenta" type="text" class="form-control" placeholder="Ingrese el Identificador">
+                </div>
+            </div>
+
+            <div class="col-12 mt-3">
+                <div class="form-group">
+                    <label for="">IDUsuario</label>
+                    <input formControlName="idUsuario" type="text" class="form-control" placeholder="Ingrese el Identificador">
+                </div>
+            </div>
+            
+            <div class="col-12 mt-3">
+                <div class="form-group">
+                    <label for="">idCliente</label>
+                    <input formControlName="idCliente" type="text" class="form-control" placeholder="Ingrese el Identificador">
+                </div>
+            </div>
+            
+
+            <div class="col-12 mt-3">
+                <div class="form-group">
+                    <label for="">IDMEdiopago</label>
+                    <input formControlName="idMetodoPago" type="text" class="form-control" placeholder="Ingrese el Identificador">
+                </div>
+            </div>
+            
+
+            <div class="col-12 mt-3">
+                <div class="form-group">
+                    <label for="">Total</label>
+                    <input formControlName="total" type="text" class="form-control" placeholder="Ingrese el Nombre dela categoria">
+                </div> 
+            </div>
+
+            <div>
+        
+      </div>
+
+            <div class="col-6 mt-3" >
+                <div class="d-grid gap-2">
+                    <button [disabled]="myForm.invalid" (click)="guardar()" class=" btn-block btn  btn-primary btn-sm">GUARDAR</button>
+                </div>
+            </div>
+            <div class="col-6 mt-3" >
+                <div class="d-grid gap-2">
+                    <button class="btn-block btn btn-danger btn-sm" (click)="cerrarModal(false)">CANCELAR</button>
+                </div>
+            </div>
+        </div>
+    </form>
+  </div>

@@ -1,0 +1,43 @@
+// .px-4{
+//      background-color: #3498db;
+// }
+
+// Definición de variables de color
+$header-bg-color: #343a40; // Color oscuro original
+$new-bg-color: #3498db; // Nuevo color de fondo deseado
+
+// Estilo para el header
+.header-custom {
+    background-color: $new-bg-color !important; // Cambia el color de fondo
+    padding: 3rem 0; // Mantiene el padding original
+    color: white; // Asegura que el texto sea blanco
+}
+
+// Aplicar estilos a los elementos dentro del header
+.header-custom .text-white {
+    color: white; // Asegura que el texto sea blanco
+}
+
+.header-custom .lead {
+    color: rgba(255, 255, 255, 0.5); // Color del texto secundario
+}
+
+
+.header-custom-modern {
+    background: linear-gradient(135deg, #1f1f1f 0%, #343a40 100%);
+    color: white;
+  }
+  
+  .logo-modern {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 4px solid white;
+    background-color: white;
+  }
+  
+  .text-highlight {
+    color: #ffc107; /* Amarillo moderno */
+  }
+  

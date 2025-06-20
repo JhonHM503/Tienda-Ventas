@@ -1,0 +1,32 @@
+ .bg-yn {
+            background-color: #090f12;
+        }
+        .btn-yn {
+            background-color: #090f12;
+            color: white;
+        }
+        .product-card {
+            transition: transform 0.3s;
+        }
+        .product-card:hover {
+            transform: scale(1.05);
+        }
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .offcanvas-body {
+             padding: 20px;
+
+            
+}
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #090f12;
+  transition: top 0.3s ease-in-out;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}

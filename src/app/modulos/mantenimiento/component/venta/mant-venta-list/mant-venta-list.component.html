@@ -1,0 +1,101 @@
+<p>mant-venta-list works!</p>
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center" >
+            <h1 class="mt-4">MANTENIMIENTO DE VENTAS</h1>
+        </div>
+        <div class="card-body">
+
+            <!-- <form [formGroup]="myFormFilter">
+
+                <div class="card bg-light mb-3">
+                <div class="card-header">Busqueda</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <label for="">Nombre Categoria</label>
+                                    <input formControlName="nombreVenta" type="text" class="form-control">
+                                </div>
+                            </div>
+                        
+                        <div class="col-3">
+                            <br>
+                            <div class="form-group">
+                                <button (click)="filtrar()" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm">
+                                    <i class="fas fa-broom"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+            </form> -->
+
+            
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>IDVenta</th>
+                        <th>IDUsuario</th>
+                        <th>IDMEdioPAgo</th>
+                        <th>idcliente</th>
+                        <th>total</th>
+                        <th>fecha venta</th>
+                        <th>
+                            <button (click)="crearVenta(modalEdit)" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Agregar
+                            </button>
+                        </th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let venta of ventas">
+                        <td>{{venta.idVenta}}</td>
+                        <td>{{venta.idUsuario}}</td>
+                        <td>{{venta.idMetodoPago}}</td>
+                        <td>{{venta.idCliente}}</td>
+                        <td>{{venta.total}}</td>
+                        <td>{{venta.fechaVenta| date:"dd/MM/yyyy"}}</td>
+                        <td>
+                            <button (click)="editarVenta(modalEdit,venta)" class="btn btn-primary btn-sm me-2">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button (click)="eliminarRegistro(venta.idVenta)" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash" ></i> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-xs-8 col-8">
+                    <!-- <pagination [totalItems]="5" [(ngModel)]="currentPage" (pageChanged)="pageChanged($event)"></pagination> -->
+                    <pagination  (pageChanged)="changePage($event)" [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" [previousText]="'Anterior'" [nextText]="'Siguiente'">
+                    </pagination>
+                </div>
+                <div class="col-xs-4 col-4">
+                    <select (change)="changeItemsPerPage()" [(ngModel)]="itemsPerPage" class="form-select">
+                        <option value="1">1</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #modalEdit>
+  <app-mant-venta-register
+  [title]="titleModal"
+  [venta]="ventaSelected"
+  [accion]="accionModal"
+  (closeModalEmmit)="getCloseModalEmmit($event)"
+  ></app-mant-venta-register>
+</ng-template>

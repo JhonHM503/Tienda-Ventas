@@ -1,0 +1,65 @@
+/* app.component.scss */
+
+// Estilos globales para el cuerpo de la aplicación
+body {
+  overflow-y: scroll;
+}
+
+// Contenedor principal de la aplicación
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+// Área de contenido principal
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+}
+
+// Estilos para personalizar la barra de desplazamiento
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+// Estilos específicos para el componente del carrito
+.carrito-container {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+
+  .carrito-content {
+    min-width: 300px;
+  }
+
+  .item-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    object-fit: cover;
+  }
+
+  .list-group-item {
+    margin-bottom: 10px;
+  }
+
+  .input-group {
+    max-width: 120px;
+  }
+}

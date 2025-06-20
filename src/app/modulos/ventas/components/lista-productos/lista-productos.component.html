@@ -1,0 +1,145 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- Panel de Filtros Lateral -->
+    <div class="col-md-3">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-filter me-2"></i>Filtros
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- Botón Limpiar Filtros -->
+          <div class="mb-3">
+            <button class="btn btn-outline-secondary btn-sm w-100" 
+                    (click)="limpiarFiltros()">
+              <i class="fas fa-times me-1"></i>Limpiar Filtros
+            </button>
+          </div>
+
+          <!-- Filtro por Categorías -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-secondary mb-3">
+              <i class="fas fa-tags me-2"></i>Categorías
+            </h6>
+            <div class="d-grid gap-2">
+              <button class="btn btn-outline-primary btn-sm text-start"
+                      [class.active]="categoriaSeleccionada === null"
+                      (click)="filtrarPorCategoria(null)">
+                <i class="fas fa-list me-2"></i>Todas las categorías
+              </button>
+              <button *ngFor="let categoria of categorias"
+                      class="btn btn-outline-primary btn-sm text-start"
+                      [class.active]="categoriaSeleccionada === categoria.idCategoria"
+                      (click)="filtrarPorCategoria(categoria.idCategoria)">
+                <i class="fas fa-tag me-2"></i>{{categoria.nombre}}
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtro por Tipos de Producto -->
+          <div class="mb-3">
+            <h6 class="fw-bold text-secondary mb-3">
+              <i class="fas fa-cube me-2"></i>Tipos de Producto
+            </h6>
+            <div class="d-grid gap-2">
+              <button class="btn btn-outline-success btn-sm text-start"
+                      [class.active]="tipoProductoSeleccionado === null"
+                      (click)="filtrarPorTipoProducto(null)"
+                      [disabled]="tiposProductoFiltrados.length === 0">
+                <i class="fas fa-boxes me-2"></i>De Tipo
+              </button>
+              <button *ngFor="let tipoProducto of tiposProductoFiltrados"
+                      class="btn btn-outline-success btn-sm text-start"
+                      [class.active]="tipoProductoSeleccionado === tipoProducto.idTipoProducto"
+                      (click)="filtrarPorTipoProducto(tipoProducto.idTipoProducto)">
+                <i class="fas fa-box me-2"></i>{{tipoProducto.nombre}}
+              </button>
+            </div>
+            <small class="text-muted" *ngIf="categoriaSeleccionada !== null">
+              <i class="fas fa-info-circle me-1"></i>
+              Tipos disponibles para la categoría seleccionada
+            </small>
+          </div>
+
+          <!-- Información de Filtros Activos -->
+          <div class="mt-4 p-3 bg-light rounded" *ngIf="categoriaSeleccionada !== null || tipoProductoSeleccionado !== null">
+            <h6 class="fw-bold text-secondary mb-2">Filtros Activos:</h6>
+            <div *ngIf="categoriaSeleccionada !== null" class="mb-2">
+              <span class="badge bg-primary">
+                <i class="fas fa-tag me-1"></i>{{getNombreCategoria(categoriaSeleccionada)}}
+              </span>
+            </div>
+            <div *ngIf="tipoProductoSeleccionado !== null">
+              <span class="badge bg-success">
+                <i class="fas fa-box me-1"></i>{{getNombreTipoProducto(tipoProductoSeleccionado)}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Productos -->
+    <div class="col-md-9">
+      <!-- Header con contador de productos -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="text-primary mb-0">
+          <i class="fas fa-shopping-bag me-2"></i>Productos
+        </h4>
+        <span class="badge bg-secondary fs-6">
+          {{productosFiltrados.length}} producto(s) encontrado(s)
+        </span>
+      </div>
+
+      <!-- Mensaje cuando no hay productos -->
+      <div *ngIf="productosFiltrados.length === 0" class="text-center py-5">
+        <div class="mb-3">
+          <i class="fas fa-search fa-3x text-muted"></i>
+        </div>
+        <h5 class="text-muted">No se encontraron productos</h5>
+        <p class="text-muted">Intenta ajustar los filtros o realizar una búsqueda diferente.</p>
+      </div>
+
+      <!-- Grid de Productos -->
+      <div class="row" *ngIf="productosFiltrados.length > 0">
+        <div class="col-lg-4 col-md-6 mb-4" *ngFor="let producto of productosFiltrados">
+          <div class="card product-card shadow-sm h-100 d-flex flex-column">
+            <div class="position-relative">
+              <img [src]="producto.imagenUrl" 
+                   class="card-img-top" 
+                   alt="{{producto.nombre}}"
+                   style="height: 300px; object-fit: cover;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-muterd fw-bold">{{producto.nombre}}</h5>
+              <p class="card-text text-muted">{{producto.descripcion}}</p>
+        
+              <div class="mt-auto">
+                <span class="price text-success fw-bold fs-5 d-block mb-2">
+                  S/. {{producto.precio | number:'1.2-2'}}
+                </span>
+        
+                <!-- Badges debajo del precio -->
+                <div class="mb-3">
+                  <span class="badge bg-primary me-1">
+                    {{getNombreCategoria(producto.idCategoria)}}
+                  </span>
+                  <span class="badge bg-success">
+                    {{getNombreTipoProducto(producto.idTipoProducto)}}
+                  </span>
+                </div>
+        
+                <!-- Botón grande abajo -->
+                <button class="btn btn-dark w-100" 
+                        (click)="agregarAlCarrito(producto)">
+                  <i class="fas fa-cart-plus me-1"></i>AGREGAR AL CARRO
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

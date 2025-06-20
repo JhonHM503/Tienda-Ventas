@@ -1,0 +1,60 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Mis Compras</h2>
+    <a class="btn btn-primary" href="index.html">
+      <i class="fas fa-arrow-left"></i> Volver a Inicio
+    </a>
+  </div>
+
+  <div class="text-center" *ngIf="cargando">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Cargando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!cargando && !error">
+    <div *ngIf="ventas.length === 0" class="alert alert-info">
+      No tienes compras realizadas aún.
+    </div>
+
+    <div *ngIf="ventas.length > 0">
+      <div class="alert alert-warning" role="alert">
+        <strong>Recordatorio:</strong> No olvides recoger tus productos con tu DNI en nuestro punto de entrega.
+      </div>
+      <div *ngFor="let venta of ventas" class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="card-title mb-1"> #00{{ venta.idVenta }}</h5>
+              <p class="card-text mb-1">Fecha: {{ venta.fechaVenta | date }}</p>
+              <p class="card-text mb-1">Total: {{ venta.total | currency:'.S/ ':'symbol':'1.2-2'}}</p>
+            </div>
+            <button class="btn" [ngClass]="{'btn-info': !detallesVisibles[venta.idVenta], 'btn-secondary': detallesVisibles[venta.idVenta]}" (click)="toggleDetallesVenta(venta.idVenta)">
+              {{ detallesVisibles[venta.idVenta] ? 'Ocultar detalles' : 'Ver detalles' }}
+            </button>
+          </div>
+          <div *ngIf="detallesVisibles[venta.idVenta] && detallesVenta[venta.idVenta]" class="mt-3">
+            <h6>Detalles de la venta:</h6>
+            <ul class="list-group">
+              <li *ngFor="let detalle of detallesVenta[venta.idVenta]" class="list-group-item">
+                <strong>{{ getNombreProducto(detalle.idProducto) }}</strong><br>
+                Cantidad: {{ detalle.cantidad }} - 
+                Precio unitario: {{ detalle.precioUnitario | currency:'.S/ ':'symbol':'1.2-2'}} - 
+                Subtotal: {{ detalle.subtotal | currency:'.S/ ':'symbol':'1.2-2'}}
+              </li>
+            </ul>
+          </div>
+          <div *ngIf="cargandoDetalles" class="mt-2">
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="sr-only">Cargando detalles...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

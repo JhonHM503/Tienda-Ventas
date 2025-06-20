@@ -1,0 +1,48 @@
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center" >
+            <h1 class="mt-4">MANTENIMIENTO DE IMAGENES</h1>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>IDServicio</th>
+                        <th>Nombre Imagen</th>
+                        <th>Ruta Imagen</th>
+                        <th>
+                            <button (click)="crearImagen(modalEdit)" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let imagen of imagenes">
+                        <td>{{imagen.idImagen}}</td>
+                        <td>{{imagen.url}}</td>
+                        <td>
+                            <button (click)="editarImagen(modalEdit,imagen)" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button (click)="eliminarRegistro(imagen.idImagen)" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<ng-template #modalEdit>
+  <app-mant-imagen-register
+  [title]="titleModal"
+  [imagen]="imagenSelected"
+  [accion]="accionModal"
+  (closeModalEmmit)="getCloseModalEmmit($event)"
+  ></app-mant-imagen-register>
+</ng-template>

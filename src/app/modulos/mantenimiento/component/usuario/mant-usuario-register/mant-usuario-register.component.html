@@ -1,0 +1,152 @@
+<div class="modal-header bg-light">
+  <h4 class="modal-title pull-left">{{title}}</h4>
+  <button type="button" class="btn-close close pull-right" aria-label="Close">
+    <span aria-hidden="true" class="visually-hidden">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="myForm">
+    <div class="row">
+      <!-- Persona fields -->
+      <div class="col-12 mt-3">
+        <h5>Información de la Persona</h5>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="idPersona">ID Persona</label>
+          <input formControlName="idPersona" type="text" class="form-control" placeholder="ID Persona" readonly>
+        </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="idTipoDocumento">Tipo de Documento</label>
+          <select class="form-select" formControlName="idTipoDocumento">
+            <option *ngFor="let t of tiposDeDocumentos" [value]="t.idTipoDocumento">
+                {{t.nombre}}
+            </option>
+          </select>
+          <div *ngIf="myForm.get('idTipoDocumento')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('idTipoDocumento')?.hasError('required')"> Campo requerido </small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+          <label for="numeroDocumento">Número de Documento</label>
+          <input formControlName="numeroDocumento" type="text" class="form-control" placeholder="Ingrese el número de documento" (keypress)="soloNumeros($event)">
+          <button (click)="buscarDNI()" class="btn btn-primary btn-sm " [disabled]="buscando">
+            <span *ngIf="!buscando"> <i class="fas fa-search"></i> Buscar por DNI </span>
+            <span *ngIf="buscando" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          </button>
+          <div *ngIf="myForm.get('numeroDocumento')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('numeroDocumento')?.hasError('required')"> Campo requerido </small>
+          </div>
+      </div>
+      <div class="col-12 mt-3">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input formControlName="nombre" type="text" class="form-control" placeholder="Ingrese el nombre">
+        </div>
+        <div *ngIf="myForm.get('nombre')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('nombre')?.hasError('required')"> Campo requerido </small>
+        </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="apellidoPaterno">Apellido Paterno</label>
+          <input formControlName="apellidoPaterno" type="text" class="form-control" placeholder="Ingrese el apellido paterno">
+        </div>
+        <div *ngIf="myForm.get('apellidoPaterno')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('apellidoPaterno')?.hasError('required')"> Campo requerido </small>
+          </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="apellidoMaterno">Apellido Materno</label>
+          <input formControlName="apellidoMaterno" type="text" class="form-control" placeholder="Ingrese el apellido materno">
+        </div>
+        <div *ngIf="myForm.get('apellidoMaterno')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('apellidoMaterno')?.hasError('required')"> Campo requerido </small>
+          </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input formControlName="telefono" type="text" class="form-control" placeholder="Ingrese el teléfono" (keypress)="soloNumeros($event)">
+        </div>
+        <div *ngIf="myForm.get('telefono')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('telefono')?.hasError('required')"> Campo requerido </small>
+          </div>
+      </div>
+
+      <!-- Usuario fields -->
+      <div class="col-12 mt-3">
+        <h5>Información del Usuario</h5>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="idUsuario">ID Usuario</label>
+          <input formControlName="idUsuario" type="text" class="form-control" placeholder="ID Usuario" readonly>
+        </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="idRol">Rol</label>
+           <select class="form-select" formControlName="idRol">
+            <option *ngFor="let r of roles" [value]="r.idRol">
+                {{r.nombre}}
+            </option>
+          </select>
+          <div *ngIf="myForm.get('idRol')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('idRol')?.hasError('required')"> Campo requerido </small>
+          </div>
+          <!-- <input formControlName="idRol" type="text" class="form-control" placeholder="Ingrese el nombre">  -->
+        </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="username">Nombre de Usuario</label>
+          <input formControlName="username" type="text" class="form-control" placeholder="Ingrese el nombre de usuario">
+        </div>
+        <div *ngIf="myForm.get('username')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('username')?.hasError('required')"> Campo requerido </small>
+          </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input formControlName="email" type="email" class="form-control" placeholder="Ingrese el email">
+        </div>
+        <div *ngIf="myForm.get('email')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('email')?.hasError('required')"> Campo requerido </small>
+          </div>
+      </div>
+      <div class="col-12 mt-3">
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input formControlName="password" type="password" class="form-control" placeholder="Ingrese la contraseña">
+        </div>
+        <div *ngIf="myForm.get('password')?.errors && myForm.touched ">
+            <small class="text-danger" *ngIf="myForm.get('password')?.hasError('required')"> Campo requerido </small>
+          </div>
+      </div>
+      
+      <div>
+        <div class="form-group">
+          <!-- <label for="fechaRegistro">Fecha Registro</label> -->
+          <input formControlName="fechaRegistro" type="hidden" class="form-control" >
+      </div>
+      </div>
+
+      <div class="col-6 mt-3">
+        <div class="d-grid gap-2">
+          <button [disabled]="myForm.invalid" (click)="guardarRegistro()" class="btn-block btn btn-primary btn-sm">GUARDAR</button>
+        </div>
+      </div>
+      <div class="col-6 mt-3">
+        <div class="d-grid gap-2">
+          <button class="btn-block btn btn-danger btn-sm" (click)="cerrarModal(false)">CANCELAR</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

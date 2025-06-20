@@ -1,0 +1,122 @@
+<div class="container-fluid px-4 mt-5">
+    <div class="card bg-light mb-3">
+        <div class="card-header text-center">
+            <h1 class="mt-4">HISTORIAL DE VENTAS</h1>
+        </div>
+        <div class="card-body">
+            <div *ngIf="!hayVentasHoy" class="alert alert-info text-center">
+                <h4>No hay ventas registradas para el día de hoy</h4>
+            </div>
+
+            <div *ngIf="hayVentasHoy">
+                <!-- filtros -->
+                <form [formGroup]="filterForm" (ngSubmit)="aplicarFiltros()">
+                       <div class="row mb-3">
+                           <!-- <div class="col-md-2">
+                               <label for="fechaInicio">Fecha Inicio:</label>
+                               <input type="date" id="fechaInicio" class="form-control" formControlName="fechaInicio">
+                           </div>
+                           <div class="col-md-2">
+                               <label for="fechaFin">Fecha Fin:</label>
+                               <input type="date" id="fechaFin" class="form-control" formControlName="fechaFin">
+                           </div> -->
+                           <div class="col-md-2">
+                               <label for="metodoPago">Método de Pago:</label>
+                               <select id="metodoPago" class="form-select" formControlName="metodoPago">
+                                   <option [ngValue]="null">Todos</option>
+                                   <option *ngFor="let metodo of metodoPagos" [ngValue]="metodo.idMetodoPago">
+                                       {{metodo.nombre}}
+                                   </option>
+                               </select>
+                           </div>
+                           <div class="col-md-2">
+                               <label for="clienteNombre">Cliente:</label>
+                               <input type="text" id="clienteNombre" class="form-control" formControlName="clienteNombre" placeholder="nombre del cliente">
+                           </div>
+                           <div class="col-md-2">
+                               <label for="totalMinimo">Total Mínimo:</label>
+                               <input type="number" id="totalMinimo" class="form-control" formControlName="totalMinimo" placeholder=".S/ 0.00">
+                           </div>
+                           <div class="col-md-2">
+                               <label for="totalMaximo">Total Máximo:</label>
+                               <input type="number" id="totalMaximo" class="form-control" formControlName="totalMaximo"  placeholder=".S/ 0.00">
+                           </div>
+                       </div>
+                       <div class="row mb-3">
+                           <div class="col-md-12 text-center">
+                               <button type="submit" class="btn btn-primary me-2">Aplicar Filtros</button>
+                               <button type="button" class="btn btn-secondary" (click)="limpiarFiltros()">Limpiar Filtros</button>
+                           </div>
+                       </div>
+                </form>
+                <!-- fin filtro -->
+            </div>
+
+
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>IDVenta</th>
+                        <th>Cliente</th>
+                        <th>Metodo de Pago</th>
+                        <th>Total</th>
+                        <th>Fecha venta</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let venta of ventasFiltradas">
+                        <td>{{venta.idVenta}}</td>
+                        <td>{{getNombreCliente(venta.idCliente)}}</td>
+                        <td>{{getNombreMetodoPago(venta.idMetodoPago)}}</td>
+                        <td>{{venta.total | currency: 'PEN':'S/. ' }}</td>
+                        <td>{{venta.fechaVenta | date:"dd/MM/yyyy"}}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm me-2" (click)="verDetalleVenta(venta.idVenta)">
+                                <i class="fas fa-eye"></i> Ver detalle
+                            </button>
+                          
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+     <!-- Modal para mostrar detalles de venta -->
+    <div class="modal" [ngClass]="{'d-block': ventaSeleccionada !== null, 'd-none': ventaSeleccionada === null}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles de la Venta {{ventaSeleccionada}}</h5>
+                    <button type="button" class="btn-close" (click)="cerrarDetalleVenta()"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID Detalle</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let detalle of detallesVenta">
+                                <td>{{detalle.idDetalleVenta}}</td>
+                                <td>{{getNombreProducto(detalle.idProducto)}}</td>
+                                <td>{{detalle.cantidad}}</td>
+                                <td>{{detalle.precioUnitario | currency: 'PEN':'S/. ' }}</td>
+                                <td>{{detalle.subtotal | currency: 'PEN':'S/. ' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="cerrarDetalleVenta()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
