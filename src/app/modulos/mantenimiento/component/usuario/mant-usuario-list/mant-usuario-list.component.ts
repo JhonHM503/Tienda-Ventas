@@ -213,8 +213,13 @@ export class MantUsuarioListComponent implements OnInit{
             alert_delete_success("Registro eliminado", "El registro se ha eliminado correctamente.");
             this.listarUsuariosConPersonas();
           },
-          error: () => {
-            alert_delete_error("Error", "Ocurrió un error al eliminar el registro.");
+          error: (error) => {
+            // Verificar si el error tiene la estructura esperada
+            if (error && error.error && error.error.mensaje) {
+              alert_delete_error("Error",  "Este usuario tiene registros de ventas y no puede ser eliminado.");
+            } else {
+              alert_delete_error("Error", "Ocurrió un error al eliminar el registro.");
+            }
           }
         });
       }

@@ -208,37 +208,19 @@ export class ListaProductosComponent implements OnInit {
       this.modelosDispositivoFiltrados = [...this.modelosDispositivo];
       return;
     }
-  
-    // Si hay filtros activos, aplicar la lógica existente
+   // ⚠️ SOLO ACTUALIZAR si no hay marca seleccionada
+   if (this.marcaSeleccionada === null) {
     const productosIds = this.productosFiltrados.map(p => p.idProducto);
-    
-    // Obtener modelos disponibles basados en productos filtrados
+
     const modelosDisponiblesIds = this.productosDispositivo
       .filter(pd => productosIds.includes(pd.idProducto))
       .map(pd => pd.idModelo);
-  
+
     const modelosDisponibles = this.modelosDispositivo.filter(m => modelosDisponiblesIds.includes(m.idModelo));
-  
-    // Actualizar marcas disponibles
+
     const marcasDisponiblesIds = [...new Set(modelosDisponibles.map(m => m.idMarca))];
     this.marcasFiltradas = this.marca.filter(m => marcasDisponiblesIds.includes(m.idMarca));
-  
-    // Actualizar tipos de dispositivo disponibles
-    const tiposDisponiblesIds = [...new Set(modelosDisponibles.map(m => m.idTipoDispositivo))];
-    this.tiposDispositivoFiltrados = this.tiposDispositivo.filter(td => tiposDisponiblesIds.includes(td.idTipoDispositivo));
-  
-    // Actualizar modelos disponibles (filtrados por marca y tipo si están seleccionados)
-    let modelosFiltrados = modelosDisponibles;
-    
-    if (this.marcaSeleccionada !== null) {
-      modelosFiltrados = modelosFiltrados.filter(m => m.idMarca === this.marcaSeleccionada);
-    }
-    
-    if (this.tipoDispositivoSeleccionado !== null) {
-      modelosFiltrados = modelosFiltrados.filter(m => m.idTipoDispositivo === this.tipoDispositivoSeleccionado);
-    }
-  
-    this.modelosDispositivoFiltrados = modelosFiltrados;
+  }
   }
 
   filtrarTiposProductoPorCategoria() {

@@ -62,6 +62,31 @@
             </small>
           </div>
 
+          <!-- Filtros de Dispositivos (solo para productos específicos) -->
+          <div *ngIf="filtroUniversal !== true">
+            <!-- Filtro por Marca -->
+            <div class="mb-4">
+              <h6 class="fw-bold text-secondary mb-3">
+                <i class="fas fa-copyright me-2"></i>Marcas
+                <span class="badge bg-secondary ms-2">{{marcasFiltradas.length}}</span>
+              </h6>
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-warning btn-sm text-start"
+                        [class.active]="marcaSeleccionada === null"
+                        (click)="filtrarPorMarca(null)"
+                        [disabled]="marcasFiltradas.length === 0">
+                  <i class="fas fa-list me-2"></i>Todas las marcas
+                </button>
+                <button *ngFor="let marca of marcasFiltradas"
+                        class="btn btn-outline-warning btn-sm text-start"
+                        [class.active]="marcaSeleccionada === marca.idMarca"
+                        (click)="filtrarPorMarca(marca.idMarca)">
+                  <i class="fas fa-copyright me-2"></i>{{marca.nombre}}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Información de Filtros Activos -->
           <div class="mt-4 p-3 bg-light rounded" *ngIf="categoriaSeleccionada !== null || tipoProductoSeleccionado !== null">
             <h6 class="fw-bold text-secondary mb-2">Filtros Activos:</h6>

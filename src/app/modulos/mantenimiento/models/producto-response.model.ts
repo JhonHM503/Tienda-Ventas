@@ -10,8 +10,6 @@ export class ProductoResponse {
     marcaAccesorio: string = "";
     color: string = "";
     material: string = "";
-    // idTipoFunda: number = 0;
-    // idTipoProtector: number = 0;
     esUniversal: boolean = false;   
     codigoProducto: string = "";
 }

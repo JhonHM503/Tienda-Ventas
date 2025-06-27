@@ -53,21 +53,22 @@ export class MantProductoRegisterComponent implements OnInit {
 
 
   myForm:FormGroup;
+  dispositivo: FormGroup; // Formulario para dispositivo principal
   dispositivoForm: FormGroup; // Nuevo formulario para dispositivos
   productoEnvio:ProductoRequest = new ProductoRequest();
   imagenEnvio:ImagenRequest = new ImagenRequest();
-  // productoForm: FormGroup;
 
   selectedFile: File | null = null;
   imagenActualUrl: string | null = null;
-
   isLoading: boolean = false; // Nueva propiedad para controlar el estado de carga
 
-   // Nuevas propiedades para dispositivos
-   tiposDispositivo: TipoDispositivoResponse[] = [];
-   marcas: MarcaResponse[] = [];
-   modelos: ModeloDispositivoResponse[] = [];
-   dispositivosSeleccionados: DispositivoSeleccionado[] = [];
+
+  //Propiedades para dispositivos
+  tiposDispositivo: TipoDispositivoResponse[] = [];
+  marcas: MarcaResponse[] = [];
+  modelos: ModeloDispositivoResponse[] = [];
+  dispositivoPrincipalSeleccionado: DispositivoSeleccionado | null = null;  
+  dispositivosAdicionalesSeleccionados: DispositivoSeleccionado[] = [];
 
 
   categoria:CategoriaResponse[]=[];
@@ -102,13 +103,18 @@ export class MantProductoRegisterComponent implements OnInit {
       color: ['', Validators.required],
       marcaAccesorio: ['', Validators.required], 
       // material: ['', Validators.required],  
-      // idTipoFunda: [null, [Validators.required]],
-      // idTipoProtector: [null, [Validators.required]],
       esUniversal: [false, Validators.required], 
       // codigoProducto: ['', Validators.required], 
     });
 
-    // Formulario para agregar dispositivos
+    // Formulario para dispositivo principal
+    this.dispositivo = this.fb.group({
+      idTipoDispositivo: [null, Validators.required],
+      idMarca: [null, Validators.required],
+      idModelo: [null, Validators.required]
+    });
+
+    // Formulario para agregar dispositivos adicionales
     this.dispositivoForm = this.fb.group({
       idTipoDispositivo: [null, Validators.required],
       idMarca: [null, Validators.required],
@@ -117,9 +123,6 @@ export class MantProductoRegisterComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // console.log('Fundas:', this.tipoFundas); 
-    // console.log('protectores:', this.tipoProtectores); 
-
     this.cargarTiposDispositivo();
 
     this.cargarTodosTiposProducto().then(()=> {
@@ -131,29 +134,27 @@ export class MantProductoRegisterComponent implements OnInit {
           this.filtrarTiposProductoPorCategoria(this.producto.idCategoria);
         }
         // Si el producto es universal, cargar dispositivos asociados
-        if(this.producto.esUniversal){
           this.cargarDispositovosDelProducto();
-        }
+        
       }
     });
 
     // Escuchar cambios en la categoría
-  this.myForm.get('idCategoria')?.valueChanges.subscribe(categoriaId => {
-    if (categoriaId) {
-      this.filtrarTiposProductoPorCategoria(categoriaId);
-      // Limpiar la selección de tipo de producto cuando cambie la categoría
-      this.myForm.get('idTipoProducto')?.setValue(null);
-    } else {
-      this.tiposProducto = [];
-      this.myForm.get('idTipoProducto')?.setValue(null);
-    }
-  });
-
+    this.myForm.get('idCategoria')?.valueChanges.subscribe(categoriaId => {
+      if (categoriaId) {
+        this.filtrarTiposProductoPorCategoria(categoriaId);
+        // Limpiar la selección de tipo de producto cuando cambie la categoría
+        this.myForm.get('idTipoProducto')?.setValue(null);
+      } else {
+        this.tiposProducto = [];
+        this.myForm.get('idTipoProducto')?.setValue(null);
+      }
+    });
     
-     // Escuchar cambios en esUniversal
-     this.myForm.get('esUniversal')?.valueChanges.subscribe(value => {
+    // Escuchar cambios en esUniversal
+    this.myForm.get('esUniversal')?.valueChanges.subscribe(value => {
       if (!value) {
-        this.dispositivosSeleccionados = [];
+        this.dispositivosAdicionalesSeleccionados = [];
       }
     });
   }
@@ -184,13 +185,13 @@ export class MantProductoRegisterComponent implements OnInit {
     });
   }
 
-// Método para filtrar tipos de producto por categoría
-filtrarTiposProductoPorCategoria(categoriaId: number): void {
-  // Filtrar los tipos de producto que pertenecen a la categoría seleccionada
-  this.tiposProducto = this.todosTiposProducto.filter(
-    tipo => tipo.idCategoria === Number(categoriaId)
-  );
-}
+  // Método para filtrar tipos de producto por categoría
+  filtrarTiposProductoPorCategoria(categoriaId: number): void {
+    // Filtrar los tipos de producto que pertenecen a la categoría seleccionada
+    this.tiposProducto = this.todosTiposProducto.filter(
+      tipo => tipo.idCategoria === Number(categoriaId)
+    );
+  }
 
   
   onTipoDispositivoChange(): void {
@@ -222,6 +223,64 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
     }
   }
 
+  // Métodos para el dispositivo principal:
+  onTipoDispositivoPrincipalChange(): void {
+    const tipoId = this.dispositivo.get('idTipoDispositivo')?.value;
+    if (tipoId) {
+      this._marcaService.getAll().subscribe({
+        next: (data: MarcaResponse[]) => {
+          this.marcas = data;
+          this.dispositivo.get('idMarca')?.setValue(null);
+          this.dispositivo.get('idModelo')?.setValue(null);
+          this.modelos = [];
+        },
+        error: (error) => console.error('Error cargando marcas principales:', error)
+      });
+    }
+  }
+
+  onMarcaPrincipalChange(): void {
+    const marcaId = this.dispositivo.get('idMarca')?.value;
+    if (marcaId) {
+      this._modeloDispositivoService.getAll().subscribe({
+        next: (data: ModeloDispositivoResponse[]) => {
+          this.modelos = data.filter(modelo => modelo.idMarca == marcaId);
+          this.dispositivo.get('idModelo')?.setValue(null);
+        },
+        error: (error) => console.error('Error cargando modelos principales:', error)
+      });
+    }
+  }
+
+  agregarDispositivoPrincipal(): void {
+    if (this.dispositivo.valid) {
+      const tipoId = this.dispositivo.get('idTipoDispositivo')?.value;
+      const marcaId = this.dispositivo.get('idMarca')?.value;
+      const modeloId = this.dispositivo.get('idModelo')?.value;
+
+      const tipoDispositivo = this.tiposDispositivo.find(t => t.idTipoDispositivo == tipoId);
+      const marca = this.marcas.find(m => m.idMarca == marcaId);
+      const modelo = this.modelos.find(m => m.idModelo == modeloId);
+
+      if (tipoDispositivo && marca && modelo) {
+        this.dispositivoPrincipalSeleccionado = {
+          tipoDispositivo,
+          marca,
+          modelos: modelo
+        };
+        
+        // Limpiar formulario
+        this.dispositivo.reset();
+        this.marcas = [];
+        this.modelos = [];
+      }
+    }
+  }
+
+  eliminarDispositivoPrincipal(): void {
+    this.dispositivoPrincipalSeleccionado = null;
+  }
+
   agregarDispositivo(): void {
     if (this.dispositivoForm.valid) {
       const tipoId = this.dispositivoForm.get('idTipoDispositivo')?.value;
@@ -233,10 +292,16 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
       const modelo = this.modelos.find(m => m.idModelo == modeloId);
 
       if (tipoDispositivo && marca && modelo) {
+        // Verificar que no sea el mismo modelo principal
+        if (this.dispositivoPrincipalSeleccionado && 
+            modelo.idModelo === this.dispositivoPrincipalSeleccionado.modelos.idModelo) {
+          alert_error("Modelo duplicado", "No puede agregar el mismo modelo que está seleccionado como dispositivo principal.");
+          return;
+        }
         // Verificar que no esté duplicado
-        const existe = this.dispositivosSeleccionados.some(d => d.modelos.idModelo === modelo.idModelo);
+        const existe = this.dispositivosAdicionalesSeleccionados.some(d => d.modelos.idModelo === modelo.idModelo);
         if (!existe) {
-          this.dispositivosSeleccionados.push({
+          this.dispositivosAdicionalesSeleccionados.push({
             tipoDispositivo,
             marca,
             modelos: modelo
@@ -255,12 +320,10 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
   }
 
   eliminarDispositivo(index: number): void {
-    this.dispositivosSeleccionados.splice(index, 1);
+    this.dispositivosAdicionalesSeleccionados.splice(index, 1);
   }
 
   cargarDispositovosDelProducto():void{
-    //
-    //
     if (!this.producto.idProducto) {
       return;
     }
@@ -279,30 +342,15 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
         );
   
         // Para cada ProductoDispositivo, construir el DispositivoSeleccionado
-        this.dispositivosSeleccionados = productosDispositivosDelProducto.map(pd => {
-          // Encontrar el modelo
+        const dispositivosCargados = productosDispositivosDelProducto.map(pd => {
           const modelo = data.modelos.find(m => m.idModelo === pd.idModelo);
-          
-          if (!modelo) {
-            console.error(`Modelo no encontrado para idModelo: ${pd.idModelo}`);
-            return null;
-          }
+          if (!modelo) return null;
   
-          // Encontrar la marca del modelo
           const marca = data.marcas.find(m => m.idMarca === modelo.idMarca);
-          
-          if (!marca) {
-            console.error(`Marca no encontrada para idMarca: ${modelo.idMarca}`);
-            return null;
-          }
+          if (!marca) return null;
   
-          // Encontrar el tipo de dispositivo del modelo
           const tipoDispositivo = data.tiposDispositivo.find(td => td.idTipoDispositivo === modelo.idTipoDispositivo);
-          
-          if (!tipoDispositivo) {
-            console.error(`Tipo de dispositivo no encontrado para idTipoDispositivo: ${modelo.idTipoDispositivo}`);
-            return null;
-          }
+          if (!tipoDispositivo) return null;
   
           return {
             tipoDispositivo: tipoDispositivo,
@@ -311,7 +359,22 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
           };
         }).filter(item => item !== null) as DispositivoSeleccionado[];
   
-        console.log('Dispositivos cargados para edición:', this.dispositivosSeleccionados);
+          // El primer dispositivo es el principal
+        if (dispositivosCargados.length > 0) {
+          this.dispositivoPrincipalSeleccionado = dispositivosCargados[0];
+          
+          // Los demás son adicionales (si los hay)
+          if (this.producto.esUniversal && dispositivosCargados.length > 1) {
+            this.dispositivosAdicionalesSeleccionados = dispositivosCargados.slice(1);
+          } else {
+            // Si no es universal o solo tiene un dispositivo, limpiar adicionales
+            this.dispositivosAdicionalesSeleccionados = [];
+          }
+        }
+
+        console.log('Dispositivo principal cargado:', this.dispositivoPrincipalSeleccionado);
+        console.log('Dispositivos adicionales cargados:', this.dispositivosAdicionalesSeleccionados);
+        console.log('Es universal:', this.producto.esUniversal);
       },
       error: (error) => {
         console.error('Error cargando dispositivos del producto:', error);
@@ -326,9 +389,15 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
 
   guardarRegistro(): void {
     if (this.myForm.valid) {
+
+        // Validar que tenga dispositivo principal
+      if (!this.dispositivoPrincipalSeleccionado) {
+        alert_error("Dispositivo principal requerido", "Debe seleccionar un dispositivo principal para el producto.");
+        return;
+      }
       
       // Validar dispositivos si es universal
-      if (this.myForm.get('esUniversal')?.value && this.dispositivosSeleccionados.length === 0) {
+      if (this.myForm.get('esUniversal')?.value && this.dispositivosAdicionalesSeleccionados.length === 0) {
         alert_error("Dispositivos requeridos", "Debe agregar al menos un dispositivo compatible para productos universales.");
         return;
       }
@@ -378,8 +447,6 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
       marcaAccesorio:formValue.marcaAccesorio,
       color: formValue.color, 
       material: formValue.material, 
-      // idTipoFunda: formValue.idTipoFunda, 
-      // idTipoProtector: formValue.idTipoProtector, 
       esUniversal: formValue.esUniversal,    
       codigoProducto: formValue.codigoProducto, 
     };
@@ -394,17 +461,8 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
   crearRegistro(){
     this._productoService.createProductoAndImagen(this.imagenEnvio, this.productoEnvio).subscribe({
       next: (data: ProductoResponse) => {
-        // Si es universal, crear las relaciones con dispositivos
-        if (this.productoEnvio.esUniversal && this.dispositivosSeleccionados.length > 0) {
-          this.crearRelacionesDispositivos(data.idProducto);
-        } else {
-          this.isLoading = false;
-          alert_success("Registro creado", "El nuevo producto se ha creado correctamente.");
-          this.cerrarModal(true);
-        }
-        // this.isLoading = false; // Desactivamos el indicador al terminar
-        // alert_success("Registro creado", "El nuevo producto se han creado correctamente.");
-        // this.cerrarModal(true);
+        // Crear relación con dispositivo principal
+        this.crearRelacionDispositivoPrincipal(data.idProducto);
       },
       error: (error) => {
         this.isLoading = false; // Desactivamos el indicador en caso de error
@@ -417,32 +475,9 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
   
 
   editarRegistro(){
-    // this._productoService.updateProductoAndImagen(this.imagenEnvio, this.productoEnvio).subscribe({
-    //   next: ([imagenResponse, productoResponse]: [ImagenResponse, ProductoResponse]) => {
-    //     this.isLoading = false; // Desactivamos el indicador al terminar
-    //     alert_success("Registro actualizado", "El producto actual se han actualizado correctamente.");
-    //     this.cerrarModal(true);
-    //   },
-    //   error: (error) => {
-    //     this.isLoading = false; // Desactivamos el indicador en caso de error
-    //     alert_error("Error", "Ocurrió un error al actualizar el registro.");
-    //     console.error(error);
-    //   }
-    // });
     this._productoService.updateProductoAndImagen(this.imagenEnvio, this.productoEnvio).subscribe({
       next: ([imagenResponse, productoResponse]: [ImagenResponse, ProductoResponse]) => {
-        // Si el producto es universal, actualizar las relaciones con dispositivos
-        if (this.productoEnvio.esUniversal && this.dispositivosSeleccionados.length > 0) {
-          this.actualizarRelacionesDispositivos(productoResponse.idProducto);
-        } else if (!this.productoEnvio.esUniversal) {
-          // Si cambió de universal a no universal, eliminar todas las relaciones
-          this.eliminarTodasLasRelaciones(productoResponse.idProducto);
-        } else {
-          // Si no es universal o no tiene dispositivos, terminar aquí
-          this.isLoading = false;
-          alert_success("Registro actualizado", "El producto actual se ha actualizado correctamente.");
-          this.cerrarModal(true);
-        }
+        this.actualizarRelacionesDispositivos(productoResponse.idProducto);
       },
       error: (error) => {
         this.isLoading = false;
@@ -490,8 +525,34 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
     });
   }
 
-  crearRelacionesDispositivos(idProducto: number): void {
-    const relacionesRequests = this.dispositivosSeleccionados.map(dispositivo => {
+  crearRelacionDispositivoPrincipal(idProducto: number): void {
+    const requestPrincipal: ProductoDispositivoRequest = {
+      idProductoDispositivo: 0,
+      idProducto: idProducto,
+      idModelo: this.dispositivoPrincipalSeleccionado!.modelos.idModelo
+    };
+  
+    this._productoDispositivoService.create(requestPrincipal).subscribe({
+      next: () => {
+        // Si es universal, crear las relaciones adicionales
+        if (this.productoEnvio.esUniversal && this.dispositivosAdicionalesSeleccionados.length > 0) {
+          this.crearRelacionesDispositivosAdicionales(idProducto);
+        } else {
+          this.isLoading = false;
+          alert_success("Registro creado", "El nuevo producto se ha creado correctamente.");
+          this.cerrarModal(true);
+        }
+      },
+      error: (error) => {
+        this.isLoading = false;
+        alert_error("Error", "Error al crear la relación con el dispositivo principal.");
+        console.error(error);
+      }
+    });
+  }
+  
+  crearRelacionesDispositivosAdicionales(idProducto: number): void {
+    const relacionesRequests = this.dispositivosAdicionalesSeleccionados.map(dispositivo => {
       const request: ProductoDispositivoRequest = {
         idProductoDispositivo: 0,
         idProducto: idProducto,
@@ -504,29 +565,19 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
       forkJoin(relacionesRequests).subscribe({
         next: () => {
           this.isLoading = false;
-          alert_success("Registro actualizado", "El producto y sus dispositivos compatibles se han actualizado correctamente.");
+          alert_success("Registro creado", "El producto y sus dispositivos compatibles se han creado correctamente.");
           this.cerrarModal(true);
         },
         error: (error) => {
           this.isLoading = false;
-          alert_error("Error", "Error al crear las nuevas relaciones con dispositivos.");
+          alert_error("Error", "Error al crear las relaciones con dispositivos adicionales.");
           console.error(error);
         }
       });
-    } else {
-      this.isLoading = false;
-      alert_success("Registro actualizado", "El producto se ha actualizado correctamente.");
-      this.cerrarModal(true);
     }
   }
 
   actualizarRelacionesDispositivos(idProducto: number): void {
-    // Aquí implementarías la lógica para actualizar las relaciones
-    // Esto podría incluir eliminar relaciones existentes y crear las nuevas
-    // Por simplicidad, asumimos que eliminas todas y creas las nuevas
-    // this.crearRelacionesDispositivos(idProducto);
-    // Primero obtener las relaciones existentes
-    // Primero obtener las relaciones existentes
     this._productoDispositivoService.getAll().subscribe({
       next: (productosDispositivos) => {
         // Filtrar las relaciones de este producto
@@ -544,7 +595,7 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
           forkJoin(deleteRequests).subscribe({
             next: () => {
               // Después de eliminar, crear las nuevas relaciones
-              this.crearRelacionesDispositivos(idProducto);
+              this.crearTodasLasRelacionesDispositivos(idProducto);
             },
             error: (error) => {
               console.error('Error eliminando relaciones existentes:', error);
@@ -554,7 +605,7 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
           });
         } else {
           // Si no hay relaciones existentes, solo crear las nuevas
-          this.crearRelacionesDispositivos(idProducto);
+          this.crearTodasLasRelacionesDispositivos(idProducto);
         }
       },
       error: (error) => {
@@ -565,6 +616,58 @@ filtrarTiposProductoPorCategoria(categoriaId: number): void {
     });
   
   }
+
+  // Método auxiliar para crear todas las relaciones (principal + adicionales)
+crearTodasLasRelacionesDispositivos(idProducto: number): void {
+  const todasLasRelaciones: ProductoDispositivoRequest[] = [];
+
+  // Agregar dispositivo principal
+  if (this.dispositivoPrincipalSeleccionado) {
+    todasLasRelaciones.push({
+      idProductoDispositivo: 0,
+      idProducto: idProducto,
+      idModelo: this.dispositivoPrincipalSeleccionado.modelos.idModelo
+    });
+  }
+
+   // CAMBIO: Solo agregar dispositivos adicionales si el producto es universal
+   if (this.productoEnvio.esUniversal) {
+    this.dispositivosAdicionalesSeleccionados.forEach(dispositivo => {
+      todasLasRelaciones.push({
+        idProductoDispositivo: 0,
+        idProducto: idProducto,
+        idModelo: dispositivo.modelos.idModelo
+      });
+    });
+  }
+
+  // Crear todas las relaciones
+  if (todasLasRelaciones.length > 0) {
+    const createRequests = todasLasRelaciones.map(relacion =>
+      this._productoDispositivoService.create(relacion)
+    );
+
+    forkJoin(createRequests).subscribe({
+      next: () => {
+        this.isLoading = false;
+        const mensaje = this.productoEnvio.esUniversal 
+        ? "El producto universal y sus dispositivos se han actualizado correctamente."
+        : "El producto específico se ha actualizado correctamente.";
+        alert_success("Registro actualizado", "El producto y sus dispositivos se han actualizado correctamente.");
+        this.cerrarModal(true);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        alert_error("Error", "Error al crear las nuevas relaciones con dispositivos.");
+        console.error(error);
+      }
+    });
+  } else {
+    this.isLoading = false;
+    alert_success("Registro actualizado", "El producto se ha actualizado correctamente.");
+    this.cerrarModal(true);
+  }
+}
 
   obtenerTDocs(){
      this._categoriaService.getAll().subscribe({
